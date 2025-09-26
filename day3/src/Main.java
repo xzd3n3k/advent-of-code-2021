@@ -33,13 +33,12 @@ private static int firstPart() throws IOException {
             count++;
         }
 
-        final int halfCount = count/2;
         final int sumsSize = sums.size();
         char[] gammaRateChars = new char[sumsSize];
         char[] epsilonRateChars = new char[sumsSize];
 
         for (int i = 0; i < sumsSize; i++) {
-            if (sums.get(i) > halfCount) {
+            if (sums.get(i) > (count - sums.get(i))) {
                 gammaRateChars[i] = '0';
                 epsilonRateChars[i] = '1';
             } else {
