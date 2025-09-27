@@ -11,7 +11,17 @@ void main() {
         final int median = calculateMedian(numbers);
         final int fuelNeeded = calculateFuelConsumption(numbers, median);
 
+        float avrg = calculateAvrg(numbers);
+        long top = (long) Math.ceil(avrg);
+        long bottom = (long) Math.floor(avrg);
+
+        long topConsumption = calculateFuelConsumptionWithOutMedian(numbers, top);
+        long bottomConsumption = calculateFuelConsumptionWithOutMedian(numbers, bottom);
+
+        long fuelNeededPartTwo = Math.min(topConsumption, bottomConsumption);
+
         System.out.println(fuelNeeded);
+        System.out.println(fuelNeededPartTwo);
 
     } catch (IOException e) {
         System.out.println("Error reading file.");
@@ -43,5 +53,24 @@ private static int calculateFuelConsumption(List<Integer> numbers, int median) {
         fuelNeeded += Math.abs(median - number);
     }
 
+    return fuelNeeded;
+}
+
+private static float calculateAvrg(List<Integer> numbers) {
+    float allNumbersSum = 0;
+    for (int number : numbers) {
+        allNumbersSum += number;
+    }
+
+    return allNumbersSum/numbers.size();
+}
+
+private static long calculateFuelConsumptionWithOutMedian(List<Integer> numbers, long target) {
+    long fuelNeeded = 0;
+    for (int posInt : numbers) {
+        long pos = posInt;
+        long d = Math.abs(pos - target);
+        fuelNeeded += d * (d + 1) / 2;
+    }
     return fuelNeeded;
 }
