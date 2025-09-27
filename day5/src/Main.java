@@ -41,7 +41,22 @@ private static Coordinates parseCoordinates(String part) {
 private static void executeMove(Move move) {
     boolean xEquals = move.start.x == move.end.x;
     boolean yEquals = move.start.y == move.end.y;
+
     if (!xEquals && !yEquals) {
+        if (checkIfDiagonalMove(move)) {
+            int x1 = move.start.x;
+            int y1 = move.start.y;
+            int deltaX = move.end.x - x1;
+            int deltaY = move.end.y - y1;
+
+            int stepX = (deltaX > 0) ? 1 : -1;
+            int stepY = (deltaY > 0) ? 1 : -1;
+
+            for (int i = 0; i <= Math.abs(deltaX); i++) {
+                String location = (x1 + i * stepX) + "," + (y1 + i * stepY);
+                dictionary.put(location, dictionary.getOrDefault(location, 0) + 1);
+            }
+        }
         return;
     }
 
@@ -60,4 +75,11 @@ private static void executeMove(Move move) {
             dictionary.put(location, dictionary.getOrDefault(location, 0) + 1);
         }
     }
+}
+
+private static boolean checkIfDiagonalMove(Move move) {
+    int deltaX = Math.abs(move.end.x - move.start.x);
+    int deltaY = Math.abs(move.end.y - move.start.y);
+
+    return deltaX == deltaY && deltaX != 0;
 }
