@@ -5,6 +5,7 @@ void main() {
     String line;
     List<List<Integer>> boardNumbers = new ArrayList<>();
     Board board;
+    Board board2;
 
     while ((line = br.readLine()) != null) {
       List<Integer> row = Arrays.stream(line.trim().split(""))
@@ -14,13 +15,21 @@ void main() {
     }
 
     board = new Board(to2DArray(boardNumbers));
+    board2 = new Board(to2DArray(boardNumbers));
     boardNumbers.clear();
 
     for (int x = 0; x < 100; x++) {
       board.step();
     }
-
     IO.println(board.flashes);
+
+    int counter = 0;
+    while (!board2.allZero()) {
+      board2.step();
+      counter++;
+    }
+
+    IO.println(counter);
 
   } catch (IOException e) {
     IO.println("Error reading file.");
