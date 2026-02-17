@@ -15,9 +15,11 @@ void main() {
       graph.computeIfAbsent(to, k -> new ArrayList<>()).add(from);
     }
 
-    int numberOfPaths = depthFirstSearch("start", new ArrayList<String>());
+    int numberOfPathsPart1 = depthFirstSearch("start", new ArrayList<String>());
+    int numberOfPathsPart2 = depthFirstSearch("start", new HashMap<String, Integer>(), false);
 
-    IO.println(numberOfPaths);
+    IO.println(numberOfPathsPart1);
+    IO.println(numberOfPathsPart2);
 
   } catch (IOException e) {
     IO.println("Error reading file.");
@@ -54,6 +56,48 @@ private int depthFirstSearch(String current, List<String> visitedSmall) {
       // each recursive call represents continuing one possible path.
       total += depthFirstSearch(currentNeighbor, visitedSmallCopy);
     }
+  }
+
+  return total;
+}
+
+private int depthFirstSearch(String current, Map<String, Integer> visitSmallMap, boolean usedDoubleVisit) {
+  // if we reached the destination, we found one valid path.
+  if (current.equals("end")) {
+    return 1;
+  }
+
+  // copy state for this "branch"
+  Map<String, Integer> visitSmallMapCopy = new HashMap<>(visitSmallMap);
+
+  // if the current cave is a small cave,
+  // record that we have visited it in this path.
+  if (current.equals(current.toLowerCase())) {
+    visitSmallMapCopy.put(current, visitSmallMapCopy.getOrDefault(current, 0) + 1);
+  }
+
+  int total = 0;
+
+  for (String neighbor : graph.get(current)) {
+
+    if (neighbor.equals("start")) continue;
+
+    boolean isSmall = neighbor.equals(neighbor.toLowerCase());
+    int visits = visitSmallMapCopy.getOrDefault(neighbor, 0);
+
+    if (!isSmall) {
+      // big cave → always OK
+      total += depthFirstSearch(neighbor, visitSmallMapCopy, usedDoubleVisit);
+    }
+    else if (visits == 0) {
+      // small cave first time visit
+      total += depthFirstSearch(neighbor, visitSmallMapCopy, usedDoubleVisit);
+    }
+    else if (visits == 1 && !usedDoubleVisit) {
+      // small cave second time visit — use double visit
+      total += depthFirstSearch(neighbor, visitSmallMapCopy, true);
+    }
+    // else not allowed to enter the cave
   }
 
   return total;
