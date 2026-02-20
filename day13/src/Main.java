@@ -24,27 +24,41 @@ void main() {
         switch (commandParts[0]) {
           case "y":
             coordinates.forEach(coordinate -> {
-              Coordinate foldedCoordinateY = new Coordinate((foldValue - (coordinate.row - foldValue)), coordinate.column);
-              coordinatesToRemove.add(coordinate);
 
-              if (!(coordinate.row > foldValue && coordinates.contains(foldedCoordinateY))) {
-                coordinatesToAdd.add(foldedCoordinateY);
+              if (coordinate.row > foldValue) {
+
+                int newRow = 2 * foldValue - coordinate.row;
+                Coordinate folded = new Coordinate(newRow, coordinate.column);
+
+                coordinatesToRemove.add(coordinate);
+
+                if (!coordinates.contains(folded)) {
+                  coordinatesToAdd.add(folded);
+                }
               }
+
             });
 
-            this.applyListChanges();
+            applyListChanges();
             break;
           case "x":
             coordinates.forEach(coordinate -> {
-              Coordinate foldedCoordinateX = new Coordinate(coordinate.row, (foldValue - (coordinate.column - foldValue)));
-              coordinatesToRemove.add(coordinate);
 
-              if (!(coordinate.column > foldValue && coordinates.contains(foldedCoordinateX))) {
-                coordinatesToAdd.add(foldedCoordinateX);
+              if (coordinate.column > foldValue) {
+
+                int newCol = 2 * foldValue - coordinate.column;
+                Coordinate folded = new Coordinate(coordinate.row, newCol);
+
+                coordinatesToRemove.add(coordinate);
+
+                if (!coordinates.contains(folded)) {
+                  coordinatesToAdd.add(folded);
+                }
               }
+
             });
 
-            this.applyListChanges();
+            applyListChanges();
             break;
         }
       } else {
@@ -52,8 +66,7 @@ void main() {
         coordinates.add(new Coordinate(Integer.parseInt(coordsParts[1]), Integer.parseInt(coordsParts[0])));
       }
     }
-
-//    showMap();
+    showMap();
   } catch (IOException e) {
     IO.println("Error reading file.");
   }
