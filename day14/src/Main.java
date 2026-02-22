@@ -1,14 +1,14 @@
 static final String FILE_PATH = "src/input.txt";
 
 Map<String, String> pairInsertionRules = new HashMap<String, String>();
-Map<String, Integer> lettersCount = new HashMap<String, Integer>();
-List<String> polymerTemplateChars;
+Map<String, Long> lettersCount = new HashMap<String, Long>();
+Map<String, Long> pairCounts = new HashMap<String, Long>();
 
 void main() {
 
   try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
     String line;
-    polymerTemplateChars = Arrays.stream(br.readLine().split("")).collect(Collectors.toCollection(ArrayList::new));
+    List<String> polymerTemplateChars = Arrays.stream(br.readLine().split("")).collect(Collectors.toCollection(ArrayList::new));
     br.readLine(); // skip empty line
 
     // load pair insertion rules
@@ -18,11 +18,13 @@ void main() {
       pairInsertionRules.put(instructions[0], instructions[1]);
     }
 
-    polymerTemplateChars.forEach(polymerCharacter -> {
-      lettersCount.merge(polymerCharacter, 1, Integer::sum);
-    });
+    // create init pairs
+    for (int i = 0; i < polymerTemplateChars.size() - 1; i++) {
+      String pair = polymerTemplateChars.get(i) + polymerTemplateChars.get(i + 1);
+      pairCounts.merge(pair, 1L, Long::sum);
+    }
 
-    for (int x = 0; x < 10; x++) {
+    for (int x = 0; x < 40; x++) {
       polymerize();
     }
 
@@ -33,27 +35,38 @@ void main() {
 }
 
 private void polymerize() {
-  String[] lettersToInsert = new String[polymerTemplateChars.size()-1];
+  Map<String, Long> newPairCounts = new HashMap<>();
 
-  for (int x = 0; x < polymerTemplateChars.size() - 1; x++) {
-    String pairKey = polymerTemplateChars.get(x) + polymerTemplateChars.get(x + 1);
-    lettersToInsert[x] = pairInsertionRules.get(pairKey);
-    lettersCount.merge(pairInsertionRules.get(pairKey), 1, Integer::sum);
+  for (Map.Entry<String, Long> entry : pairCounts.entrySet()) {
+    String pair = entry.getKey();
+    long count = entry.getValue();
+
+    String insert = pairInsertionRules.get(pair);
+
+    if (insert != null) {
+      lettersCount.merge(insert, count, Long::sum);
+
+      // make new pairs
+      String left = "" + pair.charAt(0) + insert;
+      String right = "" + insert + pair.charAt(1);
+
+      newPairCounts.merge(left, count, Long::sum);
+      newPairCounts.merge(right, count, Long::sum);
+    }
   }
 
-  for (int x = 0; x < lettersToInsert.length; x++) {
-    polymerTemplateChars.add((x*2) + 1, lettersToInsert[x]);
-  }
+  pairCounts.clear();
+  pairCounts.putAll(newPairCounts);
 }
 
-private int findDiffBetweenMostLeastCommonElements() {
-  int max = 1;
-  int min = 1;
+private long findDiffBetweenMostLeastCommonElements() {
+  long max = 1;
+  long min = 1;
   int i = 0;
 
-  for (Map.Entry<String, Integer> entry : lettersCount.entrySet()) {
+  for (Map.Entry<String, Long> entry : lettersCount.entrySet()) {
     String key = entry.getKey();
-    Integer value = entry.getValue();
+    long value = entry.getValue();
 
     if (value > max) {
       max = value;
