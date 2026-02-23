@@ -1,4 +1,5 @@
 static final String FILE_PATH = "src/input.txt";
+static final boolean PART1 = false;
 
 void main() {
 
@@ -11,15 +12,21 @@ void main() {
     }
 
     // transform string into grid with numbers
-    int rows = lines.size();
-    int columns = lines.getFirst().length();
-    int[][] risk = new int[rows][columns];
+    int baseRows = lines.size();
+    int baseColumns = lines.getFirst().length();
+    int[][] baseRisk = new int[baseRows][baseColumns];
 
-    for (int row = 0; row < rows; row++) {
-      for (int column = 0; column < columns; column++) {
-        risk[row][column] = lines.get(row).charAt(column) - '0'; // substract '0' (48 ASCII/UNICODE) so it results into int
+    for (int row = 0; row < baseRows; row++) {
+      for (int column = 0; column < baseColumns; column++) {
+        // substract '0' (48 ASCII/UNICODE) so it results into int
+        baseRisk[row][column] = lines.get(row).charAt(column) - '0';
       }
     }
+
+    // expand to 5×5 tiled grid
+    int[][] risk = PART1 ? baseRisk : expandGrid(baseRisk, 5);
+    int rows = risk.length;
+    int columns = risk[0].length;
 
     // init distance
     int[][] distance = new int[rows][columns];
@@ -67,4 +74,34 @@ void main() {
   } catch (IOException e) {
     IO.println("Error reading file.");
   }
+}
+
+private static int[][] expandGrid(int[][] base, int tiles) {
+  int h = base.length;
+  int w = base[0].length;
+
+  int[][] result = new int[h * tiles][w * tiles];
+
+  for (int ty = 0; ty < tiles; ty++) {
+    for (int tx = 0; tx < tiles; tx++) {
+
+      int increment = tx + ty;
+
+      for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+
+          int val = base[y][x] + increment;
+
+          // wrap 1..9
+          if (val > 9) {
+            val = (val - 1) % 9 + 1;
+          }
+
+          result[ty * h + y][tx * w + x] = val;
+        }
+      }
+    }
+  }
+
+  return result;
 }
